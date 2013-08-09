@@ -101,7 +101,7 @@
 %
 
 \title{Physical-statistical techniques, data-feature assimilation and source separation in environmental applications}
-\author{A. Zammit-Mangion, W. Leeds, J. Rougier}
+\author{Andrew, Bill and Jonty}
 
 
 \makeatletter
@@ -137,7 +137,7 @@ The second purpose is to formalise a fourth, less frequented method which we ter
 
 \section{Assimilation of numerical models and physical observations: state of the art}
 
-In this section we review three of the most widely used categories of Bayesian data-model assimilation. For illustration the independent variable is omitted throughout; the process of interest typically lies in high dimensional spaces. 
+In this section we review three of the most widely used categories of Bayesian data-model assimilation. For illustration the independent variable is omitted throughout; typically the process is multivariate, temporally and/or spatially dependent. 
 
 \subsection{The mechanistically motivated stochastic model}
 
@@ -174,7 +174,7 @@ p(y|z_o) \propto \iint p(z_o | y, \theta_o)p(y | \theta_p)p(\theta_o, \theta_p) 
 
 In the mechanistically motivated approach, an instance of \emph{science-based parameterization} \citep{Leeds_2012}, the numerical model is deemed to be very faithful to the true process, and thus able to reproduce the emergent phenomena. This approach can thus only be used when there exists a model which is sufficiently simple and yet realistic to define the Level 2 process model. This is the case in several applications.  In \cite{Hooten_2008}, for example, the numerical model is Fisher's reaction-diffusion equation whilst the stochastic model is the finite-differenced, explicit Euler discrete equivalent. In \cite{Wikle_2001}, the simplified model is the set of linear shallow-water equations subsequently reduced in dimensionality using an orthogonal basis set. In \cite{Berliner_2003b} air-sea interactions are studied through stochastic, simplified atmospheric and quasi-geostrophic ocean models. In \cite{Milliff_2011} a process model for the vector winds is based on approximations to the Rayleigh friction equation. 
 
-\red{Maybe a practical examples as in the latest sections? But then shouldn't be too similar to Bill's paper}
+\red{Bill maybe a practical examples as in the later sections?}
 
 In many cases a mechanistic-motivated model is not self-evident, particularly when the what is termed the \lq process model\rq~is actually just one physical process influenced by several others within a complex network of models. In such cases no simple structure for the process model exists. The first alternative is a fully data-driven approach where numerical models are ignored entirely. The second, discussed next, is to integrate the physical model as is within the framework.
 
@@ -348,7 +348,8 @@ p(y^* | \zvec_m,\theta_m,\varthetab_m) = \mathcal{N}(\Sigma_{\theta_m\varthetab_
 
 \demo
 
-\red{An example of 2-stage emulation? Bill's recent paper? I understood the overall approach but didn't get into the random forest bit yet and role of bootstrap samples.}
+\paragraph{Example 4: First-order emulation} Another alternative to lowering the computational burden is to create a simple structure for the emulator, such that it only captures the first-order characteristics in the model parameter space. This approach has been gaining interest recently in ecological applications \citep{Hooten_2011,Leeds_2013}. \red{Bill can you right about a simple first-order linear emulator? Maybe you just need to allude at nonlinear models/random forests at the end (I still need to get to grips with random forests!) Maybe also mention polynomial chaos stuff which I think falls into this class (e.g.Jann Paul Mattern 2013)? As you wish.}. 
+
 
 
 The model-informed prior approach bears many similarities to the mechanistically motivated model mentioned previously. Arguably it is more faithful to the unerlying science, in mechanistic models the original model parameters $\theta_m$ feature as process parameters $\theta_p$ but may significantly change in interpretation due to the simplifications and solver method adopted. With this approach we can fully retain the physical interpretation of the model parameters $\theta_m$\footnote{Recall we have assumed that $\theta_m$ are the parameters satisfying the \emph{Best input assumption}; due to numerical model the inadequacy/solver these inputs need not even be physically plausible, let alone representative of some underlying truth. However we can safely assume that they are more informative to scientists than what would typically constitute $\theta_p$.} with the drawback of increased computational burden since several numerical model simulations are required. In both of these approaches the simulator takes a central role either in the design or the estimation of the process. 
@@ -434,7 +435,7 @@ z_o^i = Cy + \delta_1 + e_i
 \demo
 
 
-\red{Another example needed}
+\red{Another example would be nice. Ideas?}
 
 Multi-observation models provide a neat way for assimilating multiple data sets (from models or/and observations) together and despiting serving the same goal is conceptually much simpler than the model-informed prior approach. The subtle, yet important distinction to the former approach is that since the model output is expressed in terms of the process we can deal with problems such as change of support with ease (for example, we can say that the model output is an \emph{averaged} version of the true process). However methods in this category are fully focused on realisations and not on the tuning/calibration parameters used to generate the model outputs; these frequently do not feature at all within the framework.  
 
@@ -532,7 +533,7 @@ either attributed to observed data or otherwise (see Berliner 2000).
 \section{Data-feature assimilation for source separation}
 
 The data-feature assimilation is crucial for data-based inference is source separation, motivated by Problem (\ref{eq:problem}). The source separation problem, frequently encountered in the envionmental sciences (see Section 5), is a natural generalization of the treatment of \cite{Hodges_2010} who considered the related model
-\begin{equation}\label{eq:problem}
+\begin{equation}\label{eq:problem2}
 \yvec = \beta \dvec + \xvec + \evec
 \end{equation}
 
