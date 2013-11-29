@@ -182,7 +182,7 @@ In many cases a mechanistic-motivated model is not self-evident, particularly wh
 
 The model-informed prior approach is similar to the previous case, in that one attempts to configure the process model based on available science, with the difference that numerical model outputs are used to reduce uncertainty on the process model: the numerical model \emph{structure} itself is not of direct use.  Here thus, the process model in the hierarchial framework is one which is able to reconstruct the uncertainty of the physical (deterministic) simulator through uncertainties in simulator inputs and parameters, which could refer to anything from boundary conditions to forcings to solver resolution \citep{Goldstein_2009}. Structural discrepancy in this framework is catered for through a discrepancy term $\delta$ which is estimated by comparing the observations to the model outputs.
 
-Denote the process as  $y \in \mathcal{Y}$ (including past, present and future states) and an imperfect simulator of $y$ as $f(\vartheta_m)$, $\vartheta_m \in \Theta_m$. HereThe process model is then the simulator evaluated at some \emph{best input} $\theta_m \in \Theta_m$ with an added discrepancy $\delta$. It is important to realise the difference between the variable $\vartheta_m$ which indexes $\Theta_m$ and $\theta_m$ which is a random variable over the same space: $f(\vartheta_m)$ is a function mapping $\Theta_m$ to $\mathcal{Y}$, whilst $f(\theta_m)$ is another random variable taking values in $\mathcal{Y}$, the distribution of which is fully governed by that of $\theta_m$ (the study of $y(\theta_m)$ is termed \emph{uncertainty analysis} \cite{OHagan_1998}). For example, imagine that $f(\vartheta_m)$ produces an air pollution map subject to a pollutant source location $\vartheta_m$. We can clearly prooduce as many maps as we wish to by indexing through $\vartheta_m$, and sometimes we want to characterise this relationship (see Emulation later), however the process $y^*$ is defined to be $f(\cdot)$ evaluated at $\theta_m$, and we generally would like to find a posterior distribution over $\theta_m$ too. 
+Denote the process as  $y \in \mathcal{Y}$ (including past, present and future states) and an imperfect simulator of $y$ as $f(\vartheta_m)$, $\vartheta_m \in \Theta_m$. The process model is then the simulator evaluated at some \emph{best input} $\theta_m \in \Theta_m$ with an added discrepancy $\delta$. It is important to realise the difference between the variable $\vartheta_m$ which indexes $\Theta_m$ and $\theta_m$ which is a random variable over the same space: $f(\vartheta_m)$ is a function mapping $\Theta_m$ to $\mathcal{Y}$, whilst $f(\theta_m)$ is another random variable taking values in $\mathcal{Y}$, the distribution of which is fully governed by that of $\theta_m$ (the study of $f(\theta_m)$ is termed \emph{uncertainty analysis} \cite{OHagan_1998}). For example, imagine that $f(\vartheta_m)$ produces an air pollution map subject to a pollutant source location $\vartheta_m$. We can clearly prooduce as many maps as we wish to by indexing through $\vartheta_m$, and sometimes we want to characterise this relationship (see Emulation later), however the process $y^*$ is defined to be $f(\cdot)$ evaluated at $\theta_m$, and we generally would like to find a posterior distribution over $\theta_m$ too. 
 
 Returning to the process model, as alluded to earlier the inaccuracy in the simulator is compensated for with the use of a discrepancy term $\delta$ so that
 \begin{equation}
@@ -223,62 +223,8 @@ The ensuing graphical model for this setup is as follows
 p(y^*|z_o) \propto \iint p(z_o | y^*, \theta_o)p(y^* |\theta_m, \theta_\delta)p(\theta_o, \theta_m, \theta_\delta) \intd \theta_m \intd\theta_o \intd\theta_\delta
 \end{equation}
 
-The problem with this setup, as discussed in \citep{Higdon_2004}, is that evaluating $p(y^* | \theta_m, \theta_\delta)$ for some $\theta_m$ is expensive (unless $f(\cdot)$ is very simple which is rarely the case). One would need to evaluate $f(\theta_m)$ repeatedly (for different values of $\theta_m$) which is  prohibitive in complex systems. Strategic choices for $\theta_m$ for making the integral in (\ref{eq:Sim_simple}) easier are given in \cite{Rougier_2007}. One other choice is to use the samples to approximate this as a Gaussian distribution as discussed next.
+The problem with this setup, as discussed in \citep{Higdon_2004}, is that evaluating $p(y^* | \theta_m, \theta_\delta)$ for some $\theta_m$ is expensive (unless $f(\cdot)$ is very simple which is rarely the case). One would need to evaluate $f(\theta_m)$ repeatedly (for different values of $\theta_m$) which is  prohibitive in complex systems. Strategic choices for $\theta_m$ for making the integral in (\ref{eq:Sim_simple}) easier are given in \cite{Rougier_2007}. One other choice is to use the samples to approximate this as a Gaussian distribution as discussed in Example 1 of the Appendix (Extended Kalman filtering).
 
-\paragraph{Example 1: Ensemble Kalman Filtering}
-Ensemble Kalman filtering (EnKF) is the simplest application of this approach where $\theta_m$ are the initial conditions at a given time (say $t$). The model ensemble is generated by running the simulator $f(\cdot)$ for a short time period until the next observation at $t+\Delta_t$ for each of the different initial conditions. In EnKF there is no discrepancy term, and all parameters (except $\theta_m$) are assumed known. This implies a one-to-one mapping between $\theta_m$ and $y^*$ so that one of these terms (we choose $\theta_m$) can be omitted in a much simplified graphical model:
-\begin{figure}[h!]
-\centering
-\begin{tikzpicture}[scale=0.8,every node/.style={transform shape}]
-%[inner sep=1mm] 
-[line width=1pt]
-\path (4,0) node (ystar) [shape=circle,minimum size=1cm,draw] {\small $y^*$};
-\path (6,0) node (zo) [shape=circle,minimum size=1cm,draw] {\small $z_o$};
-\draw [->] (ystar) to (zo);
-\end{tikzpicture}
-\end{figure}
-
-\noindent The distribution of the true process $y^*$ is fully determined by that of $\theta_m \sim p_1(\theta_m)$, and is given by
-\begin{equation}
-p(y^*) = p_1(f^{-1}(y^*))\left| \frac{\intd f^{-1}(y^*)}{\intd y^*}\right|
-\end{equation}
-\noindent Equation (\ref{eq:Sim_simple}) reduces to
-\begin{equation}
-p(y^*|z_o) \propto  p(z_o | y^*)p(y^*)
-\end{equation}
-\noindent As earlier we are faced with a very complicated induced distribution due to presence of $f$ which, even if known, need not be invertible. In EnKF the computation is facilitated by approximating the induced distribution as a normal distribution
-\begin{equation}
-y^* \sim \mathcal{N}(\mu_m,\Sigma_m; \theta_m)
-\end{equation}
-\noindent and $\mu_m = \expect[f(\theta_m)]$ and $\Sigma_m = var[f(\theta_m]$ which can be easily found empirically from a small ensemble of, say, 50 runs (details are given later).  
-
-The \lq Kalman filtering\rq~in EnKF refers to the linear, sequential nature of this estimate i.e. $z_o = Cy^* + e$ with $e$ zero-mean Gaussian with covariance $\Sigma_o$ assumed.  The required posterior distribution is then
- \begin{equation}
-   p(y^* | z_o) \propto \exp\left(-\frac{1}{2}(z_o - Cy^*)^T\Sigma_o^{-1}(z_o - Cy^*) - \frac{1}{2}(y^* - \mu_m)^T\Sigma_m^{-1}(y^* - \mu_m) \right) 
- \end{equation}
-\noindent which is normally distributed with precision and mean given by
-\begin{align}
-\Sigma_a^{-1} &= C^T\Sigma_o^{-1}C + \Sigma_m^{-1} \\
-\mu_a &= \Sigma_a[C^T\Sigma_o^{-1}z_o + \Sigma^{-1}_mz_m]
-\end{align}
-\noindent The usual KF equations are obtained by applying the Sherman-Woodbury formula to the precision matrix to yield
-\begin{align}
-\Sigma_a &= (I - KC)\Sigma_m \\
-\mu_a &= z_m + K(z_o - Cz_m) \label{eq:EnKFmean}
-\end{align}
-\noindent where $K = \Sigma_mC^T(\Sigma_o + C\Sigma_mC^T)^{-1}$ is the Kalman gain. Note that for the single model output case (where $\Sigma_f$ needs to be specified using some other means), $\mu_a$ reduces to the 3DVAR estimate \citep{Hamill_2000}.
-
-The \lq Ensemble\rq~ in EnKF refers to the Monte Carlo nature alluded to earlier by which the mean and covariance are computed for when $f(\thetab_m) \in \mathbb{R}^{n \times N}$, where $N$ is the number of model ensembles and $n$ is the state dimensionality (i.e. $\thetab_m$ are $N$ samples from $p(\theta_m)$). The predictive mean is simply $\mu_m = \expect[f(\thetab_m)]$ while the covariance $\Sigma_m$ is estimated as the empirical covariance between the ensemble members as  $\Sigma_m = \expect[(f(\thetab_m) - \expect[f(\thetab_m)])(f(\thetab_m) - \expect[\thetab_m])^T]$. 
-
-The update step is also carried out using these realisations, First an ensemble of pseudo-observations $z_{o,m} \in \mathbb{R}^{m \times N}$ is generated by repeatedly sampling from $\mathcal{N}(z_o,\Sigma_o)$. Then the update (computation of posterior mean) is performed on each member separately to get a set of ensemble means $\mu_{a,m} \in \mathbb{R}^{n \times N}$ referred to as the \emph{analysed estimates}:
-\begin{equation}
-\mu_{a,m} = f(\thetab_m) + K(z_{o,m} - Cz_m)
-\end{equation}
-It can be shown that the mean of these estimates, $\expect[\mu_{a,m}]$, converges to $\mu_a$ in the large sample limit, as does the sample posterior covariance $\expect[(\mu_{a,m} - \expect[\mu_{a,m}])(\mu_{a,m} - \expect[\mu_{a,m}])^T]$ to the true posterior covariance $\Sigma_a$, see \cite{Burgers_1998} for further details.
-
-EnKF is a quick and efficient way for data assimilation. However simulation with $f(\cdot)$ needs to be quick and moreover, the assumptions imposed are strong: $p(y^* | z_o)$ is restricted to be Gaussian (only the mean and covariance of the ensemble members are used), the observation models are linear and the posterior mean is effectively a weighted average of the model outputs and the observations. Full-blown sequential Monte Carlo (SMC) methods may be used to remedy this, however computational issues and degeneracy in high dimensional systems would be problematic. Model bias/discrepancy is not accounted for. Thus EnKF (or any corresponding SMC method) should only be used when the simulator $f(\cdot)$ is reliable, i.e. when observations are sufficiently regular in time so that any disrepancy arising due to $f(\cdot)$ may be safely assumed to be inconsequential.
-
-\red{Ths relationship needs to be clearer}
 
 \demo
 
@@ -319,35 +265,8 @@ On one hand, emulation simplifies things considerably since the required posteri
 \begin{equation}
 p(y^*|z_o,z_m,\vartheta_m) \propto \iint p(z_o | y^*, \theta_o)p(y^* | \theta_\delta, y,\theta_m)p(z_m | y)p(y | \theta_p,\vartheta_m)p(\theta^*,\theta_o, \theta_p, \theta_\delta) \intd \theta_p \intd\theta_o \intd\theta_\delta \intd\theta_m \intd y
 \end{equation}
-\noindent which, although is augmented with respect to (\ref{eq:Sim_simple}), is much easier to work with since both $p(y^* | \theta_\delta,y,\theta_m)$ and  $p(y | z_m,\theta_p,\vartheta_m) \propto p(z_m | y)p(y | \theta_p,\vartheta_m)$ are easy to evaluate up to a constant of proportionality (the latter intentionally being constructed to do so). The caveat is that now, conceptually, the framework is less straightforward. We have introduced a new set of unknowns ($\theta_p$) which typically configure the covariances defined on the domain of interest (including $\Theta_m$), and we have introduced an experimental design problem, where one needs to strategically compute a set of simulation runs $z_m = f(\vartheta_m)$ for various $\vartheta_m$ such that we have enough information to estimate $\theta_p$ and thus establish our belief on $f(\vartheta_m)$. Despite these drawbacks however, emulation is the only means with which to perform assimilation in many real systems (under this framework), particularly when the dimensionlity of $\Theta_m$ is large.
+\noindent which, although is augmented with respect to (\ref{eq:Sim_simple}), is much easier to work with since both $p(y^* | \theta_\delta,y,\theta_m)$ and  $p(y | z_m,\theta_p,\vartheta_m) \propto p(z_m | y)p(y | \theta_p,\vartheta_m)$ are easy to evaluate up to a constant of proportionality (the latter intentionally being constructed to do so). The caveat is that now, conceptually, the framework is less straightforward. We have introduced a new set of unknowns ($\theta_p$) which typically configure the covariances defined on the domain of interest (including $\Theta_m$), and we have introduced an experimental design problem, where one needs to strategically compute a set of simulation runs $z_m = f(\vartheta_m)$ for various $\vartheta_m$ such that we have enough information to estimate $\theta_p$ and thus establish our belief on $f(\vartheta_m)$. Despite these drawbacks however, emulation is the only means with which to perform assimilation in many real systems (under this framework), particularly when the dimensionlity of $\Theta_m$ is large. Examples of two popular emulators are given in the Appendix Example 2/3.
 
-\paragraph{Example 2: The linear Gaussian case} Here we consider a similar case to \cite{Higdon_2004} where $\theta_o$ is known. However to make the example even simpler we assume an emulator which is linear in $\vartheta_m$ and a model output (and hence observation) which is a scalar. For this example we will use bold typeface to denote vectors for clarity. Assume that we have $N$ runs of the full system with inputs $\varthetab_m$ and outputs $\zvec_m$. The full system equations are as follows:
-\begin{align}
-\zvec_o &= \yvec^* + \evec_o,~~~~ \evec_o \sim \mathcal{N}(0,\Sigma_o) \\
-y^* &= y(\theta_m) + \delta,~~~~ \delta \sim \mathcal{N}(\mu_\delta,\sigma^2_\delta) \\
-y(\vartheta_m) &= \beta\vartheta_m + e_y,~~~~ e_y \sim \mathcal{GP}(0,k(\vartheta_m,\vartheta_m';\theta_p')) \\
-\zvec_m &= y(\varthetab_m) + \evec_m, ~~~~ \evec_m \sim \mathcal{N}(0,\Sigma_m)
-\end{align}
-\noindent where we let $\theta_\delta = (\mu_\delta,\sigma^2_\delta)$, $\theta_p = (\beta,\theta_p')$ and assume that $\theta_p'$ is independent of $\vartheta_m$ although this can be relaxed in practice (for example the variance is linearly related to $\vartheta_m$). The quantity $\Sigma_m$ is typically diagonal and reflects the small-scale error in emulator construction (also the nugget effect in kriging). The model outputs act as training data; the corresponding process values at $\varthetab_m$ are $\yvec = y(\varthetab_m)$. 
-
-In this first stage it is required to find the posterior distribution of $y$ at a particular point $y(\theta_m)$, this is a classical problem in Gaussian process prediction \citep{Rasmussen_2006}. A trick to simplify computations in GP prediction is to directly consider the \emph{joint} distribution
-\begin{equation}
-p(\zvec_m,y^* | \theta_m,\varthetab_m) \propto \int p(\zvec_m,y^* | \yvec, \theta_m,\theta_\delta)p(\yvec | \varthetab_m,\theta_p)p(\theta_p) \intd \theta_p \intd \theta_\delta\intd \yvec
-\end{equation}
-\noindent If we can somehow fix $\theta_p,\theta_\delta$ (using, for instance empirical methods such as trend analysis and semivariograms, or at each sample in an MCMC scheme), then this distribution reduces to
-\begin{equation}
-p(\zvec_m,y^* | \theta_m,\varthetab_m) \propto \mathcal{N}\left(\begin{bmatrix}\beta\varthetab_m \\ \beta\theta_m + \mu_\delta \end{bmatrix},\begin{bmatrix} \Sigma_m + \Sigma_{\varthetab_m} & \Sigma_{\varthetab_m\theta_m} \\ \Sigma_{\theta_m\varthetab_m} & \sigma^2_{\theta_m} + \sigma^2_\delta \end{bmatrix}  \right)
-\end{equation}
-\noindent where $\Sigma_{\varthetab_m} = k(\varthetab_m,\varthetab_m)$ and $\Sigma_{\varthetab_m\theta_m} = k(\varthetab_m,\theta_m)$. By Gaussian conditioning we can then find $p(y^* | \zvec_m,\theta_m,\varthetab_m)$ as 
-\begin{align}
-p(y^* | \zvec_m,\theta_m,\varthetab_m) = \mathcal{N}(\Sigma_{\theta_m\varthetab_m}[\Sigma_{\varthetab_m\varthetab_m} &+ \Sigma_m]^{-1}(\zvec_m - \beta \varthetab_m) , \\
-&\Sigma_{\theta_m\theta_m} - \Sigma_{\theta_m\varthetab_m}[\Sigma_{\varthetab_m\varthetab_m} + \Sigma_m]^{-1}\Sigma_{\varthetab_m\theta_m})
-\end{align}
-\noindent The next stage is to find $p(y^* | \zvec_o, \zvec_m, \theta_m, \varthetab_m) \propto p(\zvec_o | y^*)p(y^* | \zvec_m,\theta_m,\varthetab_m)$, a simple Guassian update which also results in closed form expressions for a given $\theta_m$. Now all that remains is to marginalise out $\theta_m$ which, even in this simplest of cases, will require sampling due to the complicated nature with which this variable appears in the problem (in machine learning terms, as a random  \emph{test point}). However sampling this posterior is very quick, unlike in the former case when $f(\vartheta_m)$ is repeatedly evaluated. In this case the effective dimensionality is only as large as the dimensionality of $\theta_m$, in practice parameters $\theta_p, \theta_o$ and $\theta_\delta$ will also need to be sampled. An alternative to sampling in a full Bayesian approach shown here is to use Bayes linear adjustments, see \cite{Craig_2001}.
-
-\demo
-
-\paragraph{Example 4: First-order emulation} Another alternative to lowering the computational burden is to create a simple structure for the emulator, such that it only captures the first-order characteristics in the model parameter space. This approach has been gaining interest recently in ecological applications \citep{Hooten_2011,Leeds_2013}. \red{Bill can you right about a simple first-order linear emulator? Maybe you just need to allude at nonlinear models/random forests at the end (I still need to get to grips with random forests!) Maybe also mention polynomial chaos stuff which I think falls into this class (e.g.Jann Paul Mattern 2013)? As you wish.}. 
 
 
 
@@ -395,46 +314,7 @@ z_m = \delta_1 + \delta_2y^* + e
 \end{tikzpicture}
 \end{figure}
 
-\noindent \cite{McMillan_2010} used an identical framework, (albeit with inference at an aerial resolution and with no $\delta_2$) to combine data from monitoring sites with the Community Multi-scale Air Quality (CMAQ) model output to provide estimates on PM$_{2.5}$ particulate matter. Here the process model was a generic, separable space-time model with spatial precision matrix given by the CAR(1) model \citep{Rue_2005} and the temporal covariance by the AR(1) process. A more elaborate version which facilitates inference at the point-scale is given by \cite{Sahu_2010}. Obviously multiple observation sources can be included, see for instance \cite{Smith_2007}. The works mentioned so far all use black-box process models which are flexible so as to accommodate both the observed data and the model output. Mechanistically motivated models, do however frequently appear in this context; for example in \citep{Milliff_2011} where scatterometer data ($z_o$) is integrated with weather forecasts to obtain estimates of the surface-vector winds whilst in ... (?) Finally we note that in some cases, model outputs may be used to also induce secondary Level 2 process priors, in this case Bayesian melding \citep{Poole_2000} would be necessary to elicit a single process model prior. 
-
-\paragraph{Example 3: Combining climate model output predictions:} The multi-observation approach lends itself nicely to combining several model outputs from different climate simulators in the Coupled Model Intercomparison Project (CMIP). As a case study we consider \cite{Furrer_2007}. Here the model outputs of interest are spatial average temperatures at grid locations and each of the $N$ models is associated with its own observation model given as $z_o^i = Cy_i + \epsilon_i$ where $C$ maps the spherical harmonics weights $y_i$ to the data and $e_i$ reflects the small-scale signal error. The model weights $y_i$ are modelled as $y_i = y + v_i$ where $v_i$ is uncorrelated noise, i.e. the model spherical harmonic weights are assumed to be unbiased versions of the truth. A discrepancy term is implied, as seen by substituting $y_i$ into the observation model to obtain
-\begin{equation}
-z_o^i = Cy + \delta_1 + e_i
-\end{equation}
-\noindent where $\delta_1 = Cv_i$ is the large-scale discrepancy. The process model is taken to simply be $y \sim \mathcal{N}(0,\eta)$ where $\eta$ is set so that the prior is uninformative. The ensuing graphical model for this specific scenario is as follows
-\begin{figure}[h!]
-\centering
-\begin{tikzpicture}[scale=0.8,every node/.style={transform shape}]
-%[inner sep=1mm] 
-[line width=1pt]
-\path (0,0) node (y) [shape=circle,minimum size=1cm,draw] {\small $y$};
-\path (2,1) node (zm1) [shape=circle,minimum size=1cm,draw] {\small $z_m^1$};
-\path (0,2) node (thetam1) [shape=circle,minimum size=1cm,draw] {\small $\theta_m^1$};
-\path (2,-1) node (zmN) [shape=circle,minimum size=1cm,draw] {\small $z_m^N$};
-\path (0,-2) node (thetamN) [shape=circle,minimum size=1cm,draw] {\small $\theta_m^N$};
-\path (4,1) node (thetad1) [shape=circle,minimum size=1cm,draw] {\small $\theta_{\delta_1}$};
-\path (4,-1) node (thetadN) [shape=circle,minimum size=1cm,draw] {\small $\theta_{\delta_N}$};
-
-
-\draw [->] (thetam1) to (zm1);
-\draw [->] (y) to (zm1);
-\draw [->] (y) to (zmN);
-\draw [->] (thetamN) to (zmN);
-\draw [->] (thetad1) to (zm1);
-\draw [->] (thetadN) to (zmN);
-
-\draw [loosely dashed] (zm1) to (zmN);
-\draw [loosely dashed] (thetad1) to (zm1);
-\draw [loosely dashed] (thetadN) to (zmN);
-\end{tikzpicture}
-\end{figure}
-
-\noindent This framework is related to the Reliability Ensemble Average approach where each model is weighted according to its reliability (given through the variance of $\epsilon_i$) which may be estimated empirically \citep{Giorgi_2002}. Note that a present-day observation model can be easily included in this model setup \citep[see also][]{Smith_2009,Tebaldi_2007}. A more elaborate version of the example given here including space-time dynamics is given in \cite{Berliner_2008}.
-
-\demo
-
-
-\red{Another example would be nice. Ideas?}
+\noindent \cite{McMillan_2010} used an identical framework, (albeit with inference at an aerial resolution and with no $\delta_2$) to combine data from monitoring sites with the Community Multi-scale Air Quality (CMAQ) model output to provide estimates on PM$_{2.5}$ particulate matter. Here the process model was a generic, separable space-time model with spatial precision matrix given by the CAR(1) model \citep{Rue_2005} and the temporal covariance by the AR(1) process. A more elaborate version which facilitates inference at the point-scale is given by \cite{Sahu_2010}. Obviously multiple observation sources can be included, see for instance \cite{Smith_2007}. The works mentioned so far all use black-box process models which are flexible so as to accommodate both the observed data and the model output. Mechanistically motivated models, do however frequently appear in this context; for example in \citep{Milliff_2011} where scatterometer data ($z_o$) is integrated with weather forecasts to obtain estimates of the surface-vector winds. Finally we note that in some cases, model outputs may be used to also induce secondary Level 2 process priors, in this case Bayesian melding \citep{Poole_2000} would be necessary to elicit a single process model prior.  The multi observation approach is frequently used in combining climate model output predictions, see Example 4 in the Appendix.
 
 Multi-observation models provide a neat way for assimilating multiple data sets (from models or/and observations) together and despiting serving the same goal is conceptually much simpler than the model-informed prior approach. The subtle, yet important distinction to the former approach is that since the model output is expressed in terms of the process we can deal with problems such as change of support with ease (for example, we can say that the model output is an \emph{averaged} version of the true process). However methods in this category are fully focused on realisations and not on the tuning/calibration parameters used to generate the model outputs; these frequently do not feature at all within the framework.  
 
@@ -556,6 +436,128 @@ Consider, for example
 \section{Discussion}
 
 \bibliography{Assim_bib}
+
+\appendix
+\section{Examples}
+
+\paragraph{Example 1: Ensemble Kalman Filtering}
+Ensemble Kalman filtering (EnKF) is the simplest application of the model-informed prior approach approach where $\theta_m$ are the initial conditions at a given time (say $t$). The model ensemble is generated by running the simulator $f(\cdot)$ for a short time period until the next observation at $t+\Delta_t$ for each of the different initial conditions. In EnKF there is no discrepancy term, and all parameters (except $\theta_m$) are assumed known. This implies a one-to-one mapping between $\theta_m$ and $y^*$ so that one of these terms (we choose $\theta_m$) can be omitted in a much simplified graphical model:
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[scale=0.8,every node/.style={transform shape}]
+%[inner sep=1mm] 
+[line width=1pt]
+\path (4,0) node (ystar) [shape=circle,minimum size=1cm,draw] {\small $y^*$};
+\path (6,0) node (zo) [shape=circle,minimum size=1cm,draw] {\small $z_o$};
+\draw [->] (ystar) to (zo);
+\end{tikzpicture}
+\end{figure}
+
+\noindent The distribution of the true process $y^*$ is fully determined by that of $\theta_m \sim p_1(\theta_m)$, and is given by
+\begin{equation}
+p(y^*) = p_1(f^{-1}(y^*))\left| \frac{\intd f^{-1}(y^*)}{\intd y^*}\right|
+\end{equation}
+\noindent Equation (\ref{eq:Sim_simple}) reduces to
+\begin{equation}
+p(y^*|z_o) \propto  p(z_o | y^*)p(y^*)
+\end{equation}
+\noindent As earlier we are faced with a very complicated induced distribution due to presence of $f$ which, even if known, need not be invertible. In EnKF the computation is facilitated by approximating the induced distribution as a normal distribution
+\begin{equation}
+y^* \sim \mathcal{N}(\mu_m,\Sigma_m; \theta_m)
+\end{equation}
+\noindent and $\mu_m = \expect[f(\theta_m)]$ and $\Sigma_m = var[f(\theta_m]$ which can be easily found empirically from a small ensemble of, say, 50 runs (details are given later).  
+
+The \lq Kalman filtering\rq~in EnKF refers to the linear, sequential nature of this estimate i.e. $z_o = Cy^* + e$ with $e$ zero-mean Gaussian with covariance $\Sigma_o$ assumed.  The required posterior distribution is then
+ \begin{equation}
+   p(y^* | z_o) \propto \exp\left(-\frac{1}{2}(z_o - Cy^*)^T\Sigma_o^{-1}(z_o - Cy^*) - \frac{1}{2}(y^* - \mu_m)^T\Sigma_m^{-1}(y^* - \mu_m) \right) 
+ \end{equation}
+\noindent which is normally distributed with precision and mean given by
+\begin{align}
+\Sigma_a^{-1} &= C^T\Sigma_o^{-1}C + \Sigma_m^{-1} \\
+\mu_a &= \Sigma_a[C^T\Sigma_o^{-1}z_o + \Sigma^{-1}_mz_m]
+\end{align}
+\noindent The usual KF equations are obtained by applying the Sherman-Woodbury formula to the precision matrix to yield
+\begin{align}
+\Sigma_a &= (I - KC)\Sigma_m \\
+\mu_a &= z_m + K(z_o - Cz_m) \label{eq:EnKFmean}
+\end{align}
+\noindent where $K = \Sigma_mC^T(\Sigma_o + C\Sigma_mC^T)^{-1}$ is the Kalman gain. Note that for the single model output case (where $\Sigma_f$ needs to be specified using some other means), $\mu_a$ reduces to the 3DVAR estimate \citep{Hamill_2000}.
+
+The \lq Ensemble\rq~ in EnKF refers to the Monte Carlo nature alluded to earlier by which the mean and covariance are computed for when $f(\thetab_m) \in \mathbb{R}^{n \times N}$, where $N$ is the number of model ensembles and $n$ is the state dimensionality (i.e. $\thetab_m$ are $N$ samples from $p(\theta_m)$). The predictive mean is simply $\mu_m = \expect[f(\thetab_m)]$ while the covariance $\Sigma_m$ is estimated as the empirical covariance between the ensemble members as  $\Sigma_m = \expect[(f(\thetab_m) - \expect[f(\thetab_m)])(f(\thetab_m) - \expect[\thetab_m])^T]$. 
+
+The update step is also carried out using these realisations, First an ensemble of pseudo-observations $z_{o,m} \in \mathbb{R}^{m \times N}$ is generated by repeatedly sampling from $\mathcal{N}(z_o,\Sigma_o)$. Then the update (computation of posterior mean) is performed on each member separately to get a set of ensemble means $\mu_{a,m} \in \mathbb{R}^{n \times N}$ referred to as the \emph{analysed estimates}:
+\begin{equation}
+\mu_{a,m} = f(\thetab_m) + K(z_{o,m} - Cz_m)
+\end{equation}
+It can be shown that the mean of these estimates, $\expect[\mu_{a,m}]$, converges to $\mu_a$ in the large sample limit, as does the sample posterior covariance $\expect[(\mu_{a,m} - \expect[\mu_{a,m}])(\mu_{a,m} - \expect[\mu_{a,m}])^T]$ to the true posterior covariance $\Sigma_a$, see \cite{Burgers_1998} for further details.
+
+EnKF is a quick and efficient way for data assimilation. However simulation with $f(\cdot)$ needs to be quick and moreover, the assumptions imposed are strong: $p(y^* | z_o)$ is restricted to be Gaussian (only the mean and covariance of the ensemble members are used), the observation models are linear and the posterior mean is effectively a weighted average of the model outputs and the observations. Full-blown sequential Monte Carlo (SMC) methods may be used to remedy this, however computational issues and degeneracy in high dimensional systems would be problematic. Model bias/discrepancy is not accounted for. Thus EnKF (or any corresponding SMC method) should only be used when the simulator $f(\cdot)$ is reliable, i.e. when observations are sufficiently regular in time so that any disrepancy arising due to $f(\cdot)$ may be safely assumed to be inconsequential.
+
+\paragraph{Example 2: The linear Gaussian emulator} Here we consider a similar case to \cite{Higdon_2004} where $\theta_o$ is known. However to make the example even simpler we assume an emulator which is linear in $\vartheta_m$ and a model output (and hence observation) which is a scalar. For this example we will use bold typeface to denote vectors for clarity. Assume that we have $N$ runs of the full system with inputs $\varthetab_m$ and outputs $\zvec_m$. The full system equations are as follows:
+\begin{align}
+\zvec_o &= \yvec^* + \evec_o,~~~~ \evec_o \sim \mathcal{N}(0,\Sigma_o) \\
+y^* &= y(\theta_m) + \delta,~~~~ \delta \sim \mathcal{N}(\mu_\delta,\sigma^2_\delta) \\
+y(\vartheta_m) &= \beta\vartheta_m + e_y,~~~~ e_y \sim \mathcal{GP}(0,k(\vartheta_m,\vartheta_m';\theta_p')) \\
+\zvec_m &= y(\varthetab_m) + \evec_m, ~~~~ \evec_m \sim \mathcal{N}(0,\Sigma_m)
+\end{align}
+\noindent where we let $\theta_\delta = (\mu_\delta,\sigma^2_\delta)$, $\theta_p = (\beta,\theta_p')$ and assume that $\theta_p'$ is independent of $\vartheta_m$ although this can be relaxed in practice (for example the variance is linearly related to $\vartheta_m$). The quantity $\Sigma_m$ is typically diagonal and reflects the small-scale error in emulator construction (also the nugget effect in kriging). The model outputs act as training data; the corresponding process values at $\varthetab_m$ are $\yvec = y(\varthetab_m)$. 
+
+In this first stage it is required to find the posterior distribution of $y$ at a particular point $y(\theta_m)$, this is a classical problem in Gaussian process prediction \citep{Rasmussen_2006}. A trick to simplify computations in GP prediction is to directly consider the \emph{joint} distribution
+\begin{equation}
+p(\zvec_m,y^* | \theta_m,\varthetab_m) \propto \int p(\zvec_m,y^* | \yvec, \theta_m,\theta_\delta)p(\yvec | \varthetab_m,\theta_p)p(\theta_p) \intd \theta_p \intd \theta_\delta\intd \yvec
+\end{equation}
+\noindent If we can somehow fix $\theta_p,\theta_\delta$ (using, for instance empirical methods such as trend analysis and semivariograms, or at each sample in an MCMC scheme), then this distribution reduces to
+\begin{equation}
+p(\zvec_m,y^* | \theta_m,\varthetab_m) \propto \mathcal{N}\left(\begin{bmatrix}\beta\varthetab_m \\ \beta\theta_m + \mu_\delta \end{bmatrix},\begin{bmatrix} \Sigma_m + \Sigma_{\varthetab_m} & \Sigma_{\varthetab_m\theta_m} \\ \Sigma_{\theta_m\varthetab_m} & \sigma^2_{\theta_m} + \sigma^2_\delta \end{bmatrix}  \right)
+\end{equation}
+\noindent where $\Sigma_{\varthetab_m} = k(\varthetab_m,\varthetab_m)$ and $\Sigma_{\varthetab_m\theta_m} = k(\varthetab_m,\theta_m)$. By Gaussian conditioning we can then find $p(y^* | \zvec_m,\theta_m,\varthetab_m)$ as 
+\begin{align}
+p(y^* | \zvec_m,\theta_m,\varthetab_m) = \mathcal{N}(\Sigma_{\theta_m\varthetab_m}[\Sigma_{\varthetab_m\varthetab_m} &+ \Sigma_m]^{-1}(\zvec_m - \beta \varthetab_m) , \\
+&\Sigma_{\theta_m\theta_m} - \Sigma_{\theta_m\varthetab_m}[\Sigma_{\varthetab_m\varthetab_m} + \Sigma_m]^{-1}\Sigma_{\varthetab_m\theta_m})
+\end{align}
+\noindent The next stage is to find $p(y^* | \zvec_o, \zvec_m, \theta_m, \varthetab_m) \propto p(\zvec_o | y^*)p(y^* | \zvec_m,\theta_m,\varthetab_m)$, a simple Guassian update which also results in closed form expressions for a given $\theta_m$. Now all that remains is to marginalise out $\theta_m$ which, even in this simplest of cases, will require sampling due to the complicated nature with which this variable appears in the problem (in machine learning terms, as a random  \emph{test point}). However sampling this posterior is very quick, unlike in the former case when $f(\vartheta_m)$ is repeatedly evaluated. In this case the effective dimensionality is only as large as the dimensionality of $\theta_m$, in practice parameters $\theta_p, \theta_o$ and $\theta_\delta$ will also need to be sampled. An alternative to sampling in a full Bayesian approach shown here is to use Bayes linear adjustments, see \cite{Craig_2001}.
+
+\demo
+
+\paragraph{Example 3: First-order emulation} Another alternative to lowering the computational burden is to create a simple structure for the emulator, such that it only captures the first-order characteristics in the model parameter space. This approach has been gaining interest recently in ecological applications \citep{Hooten_2011,Leeds_2013}. \red{Bill can you right about a simple first-order linear emulator? Maybe you just need to allude at nonlinear models/random forests at the end (I still need to get to grips with random forests!) Maybe also mention polynomial chaos stuff which I think falls into this class (e.g.Jann Paul Mattern 2013)? As you wish.}. 
+
+
+\paragraph{Example 4: Combining climate model output predictions:} The multi-observation approach lends itself nicely to combining several model outputs from different climate simulators in the Coupled Model Intercomparison Project (CMIP). As a case study we consider \cite{Furrer_2007}. Here the model outputs of interest are spatial average temperatures at grid locations and each of the $N$ models is associated with its own observation model given as $z_o^i = Cy_i + \epsilon_i$ where $C$ maps the spherical harmonics weights $y_i$ to the data and $e_i$ reflects the small-scale signal error. The model weights $y_i$ are modelled as $y_i = y + v_i$ where $v_i$ is uncorrelated noise, i.e. the model spherical harmonic weights are assumed to be unbiased versions of the truth. A discrepancy term is implied, as seen by substituting $y_i$ into the observation model to obtain
+\begin{equation}
+z_o^i = Cy + \delta_1 + e_i
+\end{equation}
+\noindent where $\delta_1 = Cv_i$ is the large-scale discrepancy. The process model is taken to simply be $y \sim \mathcal{N}(0,\eta)$ where $\eta$ is set so that the prior is uninformative. The ensuing graphical model for this specific scenario is as follows
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[scale=0.8,every node/.style={transform shape}]
+%[inner sep=1mm] 
+[line width=1pt]
+\path (0,0) node (y) [shape=circle,minimum size=1cm,draw] {\small $y$};
+\path (2,1) node (zm1) [shape=circle,minimum size=1cm,draw] {\small $z_m^1$};
+\path (0,2) node (thetam1) [shape=circle,minimum size=1cm,draw] {\small $\theta_m^1$};
+\path (2,-1) node (zmN) [shape=circle,minimum size=1cm,draw] {\small $z_m^N$};
+\path (0,-2) node (thetamN) [shape=circle,minimum size=1cm,draw] {\small $\theta_m^N$};
+\path (4,1) node (thetad1) [shape=circle,minimum size=1cm,draw] {\small $\theta_{\delta_1}$};
+\path (4,-1) node (thetadN) [shape=circle,minimum size=1cm,draw] {\small $\theta_{\delta_N}$};
+
+
+\draw [->] (thetam1) to (zm1);
+\draw [->] (y) to (zm1);
+\draw [->] (y) to (zmN);
+\draw [->] (thetamN) to (zmN);
+\draw [->] (thetad1) to (zm1);
+\draw [->] (thetadN) to (zmN);
+
+\draw [loosely dashed] (zm1) to (zmN);
+\draw [loosely dashed] (thetad1) to (zm1);
+\draw [loosely dashed] (thetadN) to (zmN);
+\end{tikzpicture}
+\end{figure}
+
+\noindent This framework is related to the Reliability Ensemble Average approach where each model is weighted according to its reliability (given through the variance of $\epsilon_i$) which may be estimated empirically \citep{Giorgi_2002}. Note that a present-day observation model can be easily included in this model setup \citep[see also][]{Smith_2009,Tebaldi_2007}. A more elaborate version of the example given here including space-time dynamics is given in \cite{Berliner_2008}.
+
+\demo
+
 
 \end{document}
 
