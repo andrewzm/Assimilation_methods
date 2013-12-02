@@ -322,7 +322,7 @@ Multi-observation models provide a neat way for assimilating multiple data sets 
 
 
 
-\section{Data-feature assimilation}
+\section{Data-feature assimilation}\label{sec:data-feature}
 
 In this section we consider a suite of methods which are selective in their dependence on the underlying physical model, whilst not being as detached from the physical mechanisms as multi-observation approaches (\ref{sec:mo}) and not relying too heavily on the simulator outputs \emph{talis qualis} (Section \ref{sec:mip}). There are cases where the latter would be counter-productive in assimilation: 
 \begin{enumerate}
@@ -331,7 +331,7 @@ In this section we consider a suite of methods which are selective in their depe
 \end{enumerate}
 In both cases, frequently specialists themselves would be the first to acknowledge that the output and associated uncertainties could be highly inaccurate -- indeed in this case it is debatable whether a data assimilation procedure should at all be used and a data-driven solution might be the appropriate way forward for inference, unless we are faced with under-determined problems such as that discussed next. 
 
-\subsection{Source separation in environmental systems}
+\subsection{Source separation in environmental systems}\label{sec:sourcesep}
 
 For complex physical systems which we deal with, and in particular with interacting systems, fully data-driven approaches (using empirical methods or full Bayes) are not always possible. Consider for example the simple scenario
 \begin{equation}\label{eq:problem}
@@ -350,7 +350,7 @@ The source separation problem is a natural generalization of the treatment of \c
 \end{equation}
 has an implicit prior on $\bvec$ centred on zero with variances inversely proportional to the eigenvalues $\Lambda$. Higher variances would be attributed to the lower frequency components, whilst lower variances (smaller orders of magnitude) with the higher frequencies. Colinaerity between $\dvec$ and columns of $\Zmat$ can drastically (adversely) alter the posterior estimate of $\beta$, both in mean and variance. 
 
-Consider again (\ref{eq:problem}). Now $\yvec  = \Zmat_1 \bvec_1 + \Zmat_2 \bvec_2 + \evec$ where we have assumed that $\xvec_1$ and $\xvec_2$ have different prior distributional properties. It is interesting to see how the Bayes update behaves in this case. For simplicity assume that $\Zmat_1 \equiv \Zmat_2 = \Zmat$ (for practical purposes, highly co-linear) but that $\Lambda_1 \ne \Lambda_2$, then it can be shown (Appendix B) that 
+Consider again (\ref{eq:problem}). Now $\yvec  = \Zmat_1 \bvec_1 + \Zmat_2 \bvec_2 + \evec$ where we have assumed that $\xvec_1$ and $\xvec_2$ have different prior distributional properties. It is interesting to see how the Bayes update behaves in this case. For simplicity assume that $\Zmat_1 \equiv \Zmat_2 = \Zmat$ (for practical purposes, highly co-linear) but that $\Lambda_1 \ne \Lambda_2$, then it can be shown that 
 \begin{equation}
 var(b^i_1 | \yvec) = \frac{\lambda^i_2 + \tau}{\lambda^i_1\lambda^i_2 + \tau(\lambda^i_1 + \lambda^i_2)} 
 %\expect[b^i_1 | \yvec]/\expect[b^i_2 | \yvec] =\frac{\lambda^i_2 + \tau(1 - v^i)}{\lambda^i_1 + \tau(1- v^i)}
@@ -361,7 +361,7 @@ var(b^i_1 | \yvec) = \frac{1}{\lambda^i_1 + \tau} + O(1/\lambda_2^i)
 \end{equation}
 \noindent which is also the standard Gaussian update in the absence of confounded fields. 
 
-The statistician is therefore tasked with finding prior distributions for $\xvec_1$ and $\xvec_2$ which have dissimilar spectral properties, a task which may be aided with simulator outputs. Selectively setting spectral properties corresponds to strategically choosing a set of constraints from simulator data using, for instance, four strategies outlined in Sections 3.3--3.6. 
+It is therefore desirable to have prior distributions for $\xvec_1$ and $\xvec_2$ which have dissimilar spectral properties, a task which may be aided with simulator outputs. Selectively setting spectral properties corresponds to strategically choosing a set of constraints from simulator data using the four strategies outlined in Sections 3.3--3.6. 
 
 %Data-feature assimilation provides an all-important strategy in setting our prior spectral characteristics and thus aid uncertainty reduction on the posterior estimates. 
 
@@ -393,7 +393,6 @@ y^*(\svec) &\sim \mathcal{GP}_1(\svec;\gammab_m,\gammab_c), \\
 y(\svec) &\sim \mathcal{GP}_2(\svec;\gammab_t,\gammab_c) 
 \end{align}
 \noindent with graphical model
-
 \begin{figure}[h!]
 \centering
 \begin{tikzpicture}[scale=0.8,every node/.style={transform shape}]
@@ -427,7 +426,7 @@ y(\svec) &\sim \mathcal{GP}_2(\svec;\gammab_t,\gammab_c)
 
 \subsection{Incorporation of frequency characteristics}
 
-In the first example of this approach we consider the case where thre is confidence on the spectral decomposition of the output ensemble, but not on the output values themselves. This is the case for instance when models are still in their early stage of development, or when the output depends on some variable which is unknown and cannot be observed (e.g.~the long-term climate mean mentioned earlier). The model for this case is given as
+In the first example of this approach we consider the case where there is confidence on the spectral decomposition of the output ensemble, but not on the output values themselves. This is the case for instance when models are still in their early stage of development, or when the output depends on some variable which is unknown and cannot be observed (e.g.~the long-term climate mean mentioned earlier). The model for this case is given as
 \begin{align}
 y(\svec) &\sim \mathcal{GP}_1(\mu(\svec;\gammab_m), k(\svec,\rvec;\gammab_c)), \\
 y^*(\svec) &\sim \mathcal{GP}_2(\mu(\svec;\gammab_t), k(\svec,\rvec;\gamma_c))
@@ -454,16 +453,16 @@ R(\kvec) \propto (2\pi)^{-d}(\kappa^2 + ||\kvec||^2)^{-\alpha}, ~~~ \alpha = \nu
 %\caption{Top left: Inference using empirical estimates of $\gamma_c$ from the data. Bottom left:  Inference using empirical estimates of $\gamma_c$ from model outputs. Top right: Truth (solid line), observations (dots with 1$\sigma$ and 2$\sigma$ error bars) and model simulations (red). Bottom right: True power spectrum (solid), power spectrum estmimated from the data (dotted) and from the model (dashed). Note how the high frequencies are under-represented in the data spectrum due to aliasing.}\label{fig:GPtests}
 %\end{figure*}
 
-An example of works employing this approach include \cite{Berliner_2000} where the spatial covariance matrix of global mean temperature was estimated from surrogate model output, and \cite{Zammit_2013} where the heterogeneous characteristics of a surface anomaly were extracted from numerical model output and used to set up a prior spatial model.
+An example of works employing this approach include \cite{Berliner_2000} where the spatial covariance matrix of global mean temperature was estimated from surrogate model output, and \cite{Zammit_2013} where the heterogeneous characteristics of a surface anomaly were extracted from numerical model output and used to set up a prior spatial model. In the latter example, this approach proved invaluable in tackling the source separation problem discussed in Section \ref{sec:sourcesep}.
 
 \subsection{Incorporation of spatial characteristics}
 
 In other cases there is confidence on the spatial patterns (basis functions) of the model output, but not on the magnitude or covariance of these functions. The underlying model in this case is
 \begin{align}
-y(\svec) &\sim \mathcal{GP}_1(\phi_c(\svec)^T\xvec(\gamma_m),  \phi_c(\svec)^T\Sigma(\gamma_m)\phi(\rvec)), \\
-y^*(\svec) &\sim \mathcal{GP}_1(\phi_c(\svec)^T\xvec(\gamma_t),  \phi_c(\svec)^T\Sigma(\gamma_t)\phi(\rvec)), 
+y(\svec) &\sim \mathcal{GP}_1(\phi_c(\svec)^T\xvec(\gamma_m),  \phi_c(\svec)^T\Sigma(\gamma_m)\phi_c(\rvec)), \\
+y^*(\svec) &\sim \mathcal{GP}_1(\phi_c(\svec)^T\xvec(\gamma_t),  \phi_c(\svec)^T\Sigma(\gamma_t)\phi_c(\rvec)), 
 \end{align}
-\noindent where $\phib_c$ are the basis functions common to both processes, $\xvec$ the respective weights, and where $\Sigma = Var(\xvec)$. 
+\noindent where $\phi_c$ are the basis functions common to both processes, $\xvec$ the respective weights, and where $\Sigma = Var(\xvec)$. 
 
 The most straightforward application of this method is fingerprinting where, for instance, the pattern of CO$_2$ forcings is used as a template to test whether observations support anthropogenic forcings or not. In \citep{Berliner_2000} the fingerprint appears as the \emph{mean} of the temperature anomalies, wieghted by some unknown parameter $a$. The fingerprint can be viewed as a basis function deemed as characteristic to the process of interest. Other cases include \cite{Wikle_2001}, where eigenvectors are estimated from a model describing sea-level pressure, the weights of which are subsequently estimated in assimilation. Constraining the process to lie on a low-dimensional space is beneficial when the observations are sparse and even more so when the low frequencies of two signals are confounded \citep{Zammit_2014}.
 
@@ -491,6 +490,8 @@ This approach is appealing as algorithms are today becoming available to extract
 
 
 \section{Conclusion}
+
+This article summarised the four main approaches to assimilating data with prior belief obtained from numerical model output. Such approaches are used to deal with the vast amount of information available to the statistician today, and selectively incorporate aspects of physical systems which corroborate expert judgment.These methods, and particularly those outlined in Section \ref{sec:data-feature} will play a major role in the modelling and inference of multi-variate (possibly under-determined) physical processes for the foreseeable future.
 
 \bibliography{Assim_bib}
 
